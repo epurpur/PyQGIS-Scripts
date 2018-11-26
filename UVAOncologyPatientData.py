@@ -5,7 +5,9 @@ from qgis.PyQt.QtCore import QVariant
 #from PyQt5.QtCore import Qt
 #from qgis.utils import iface
 
-join_layer = QgsVectorLayer('/Users/ep9k/Desktop/SandraMonson/cb_2017_us_zcta510_500k/cb_2017_us_zcta510_500k.shp', 'US Zip Codes', 'ogr')
+#join_layer = QgsVectorLayer('/Users/ep9k/Desktop/SandraMonson/cb_2017_us_zcta510_500k/cb_2017_us_zcta510_500k.shp', 'US Zip Codes', 'ogr')
+uri = '/Users/ep9k/Desktop/SandraMonson/cb_2017_us_zcta510_500k/cb_2017_us_zcta510_500k.shp'
+join_layer = iface.addVectorLayer(uri, 'Zip Codez', 'ogr')
 
 def add_base_layers():
     #Do I really need this function? I'll probably just save a plain map with standard layers already added
@@ -61,6 +63,15 @@ def calculate_attributes():
             feature.setAttribute(feature.fieldNameIndex('PatCNT'), feature['Patient_Data_PatientCount'])
             join_layer.updateFeature(feature)
 
+def change_color():
+    """Changes symbology of zip codes. Currently single symbol. Will be graduated based on PatCNT in future"""
+    
+    renderer = join_layer.renderer()
+    symbol = renderer.symbol()
+    symbol.setColor(QColor(Qt.black))
+    join_layer.triggerRepaint()
+    iface.layerTreeView().refreshLayerSymbology(join_layer.id())
+
 
 def main_module():
     """main module which runs all steps in script"""
@@ -68,6 +79,7 @@ def main_module():
     join_tables(join_layer, info_layer)
     add_column_to_attribute_table()
     calculate_attributes()
+    change_color()
 
 main_module()
 
