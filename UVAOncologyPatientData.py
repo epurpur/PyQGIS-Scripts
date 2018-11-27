@@ -9,24 +9,22 @@ from qgis.PyQt.QtCore import QVariant
 uri = '/Users/ep9k/Desktop/SandraMonson/cb_2017_us_zcta510_500k/cb_2017_us_zcta510_500k.shp'
 join_layer = iface.addVectorLayer(uri, 'Zip Codez', 'ogr')
 
-def add_base_layers():
-    #Do I really need this function? I'll probably just save a plain map with standard layers already added
-    #standard layers include: basemap, US Zip codes, cville boundary, cville buffers (30,60miles)
-    pass
 
 def add_csv():
-    """Adds csv file. Will later be specified as user input"""
-    #TODO: Specify csv file based on user input
+    """Adds csv file of patient data to map. Pop-up dialog box prompts user to input file path
+    QInputDialog prompts user for file name"""
     
-    uri = 'file:///Users/ep9k/Desktop/SandraMonson/CountByZip2.csv?delimiter=,'      #don't know why, but it needs file:/// before path to csv
+    file_name = QInputDialog.getText(None, 'Enter input filepath', 'Please save patient data as csv and paste full pathname here. (Example: /Users/ep9k/Desktop/SandraMonson/TestZips.csv)')
+    file_name = file_name[0]
+
+    uri = f"file://{file_name}?delimiter=,'"    #don't know why, but it needs file:// before path to csv  
+    
     info_layer = QgsVectorLayer(uri, 'Patient_Data', 'delimitedtext')
     if info_layer.isValid():
         print("info_layer is valid")
         QgsProject.instance().addMapLayer(info_layer)
     else:
         print("Invalid csv file. Please check your file path. (uri variable)")
-        
-    return info_layer
 
 
 def join_tables(join_layer, info_layer):
