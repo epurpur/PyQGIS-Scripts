@@ -61,6 +61,7 @@ def calculate_attributes():
             feature.setAttribute(feature.fieldNameIndex('PatCNT'), feature['Patient_Data_PatientCount'])
             join_layer.updateFeature(feature)
 
+
 def change_color():
     """Changes symbology of zip codes. Currently single symbol. Will be graduated based on PatCNT in future"""
     
@@ -79,7 +80,43 @@ def main_module():
     calculate_attributes()
     change_color()
 
+
 main_module()
 
+
+"""SAVING THIS FOR LATER, UPLOADED TO GITHUB
+target_field = 'PatCNT'
+layer = QgsVectorLayer('/Users/ep9k/Desktop/SandraMonson/TestZips.shp', 'Fixed Divisions', 'ogr')
+
+def validatedDefaultSymbol(geometryType):
+    symbol = QgsSymbol.defaultSymbol(geometryType)
+    if symbol is None:
+        if geometryType == Qgis.Point:
+            symbol = QgsMarkerSymbol()
+        elif geometryType == Qgis.Line:
+            symbol = QgsLineSymbol()
+        elif geometryType == Qgis.Polygon:
+            symbol = QgsFillSymbol()
+    print("Symbol type = ", type(symbol))
+    return symbol
+
+def makeSymbologyForRange(layer, min, max, title, color):
+    symbol = validatedDefaultSymbol(layer.geometryType())
+    symbol.setColor(color)
+    range = QgsRendererRange(min, max, symbol, title)
+    return range
+
+def applySymbologyFixedDivisions(layer, field):
+    rangeList = []
+    rangeList.append( makeSymbologyForRange(layer, 2, 4, '2-4', QColor("Green") ) )
+    rangeList.append( makeSymbologyForRange(layer, 4.1, 6, '4-6',  QColor("Purple") ) )
+    renderer = QgsGraduatedSymbolRenderer(field, rangeList)
+    renderer.setMode(QgsGraduatedSymbolRenderer.Custom)
+    layer.setRenderer(renderer)
+
+if layer.isValid():
+    applySymbologyFixedDivisions(layer, target_field)
+    QgsProject.instance().addMapLayer(layer)
+"""
 
 
