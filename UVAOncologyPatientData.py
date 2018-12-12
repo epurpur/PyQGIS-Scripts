@@ -4,6 +4,7 @@ from qgis.PyQt.QtCore import QVariant
 
 #sets uri, join_layer and target_field as global variables
 uri = '/Users/ep9k/Desktop/SandraMonson/cb_2017_us_zcta510_500k/cb_2017_us_zcta510_500k.shp'
+
 join_layer = iface.addVectorLayer(uri, 'Patients by Zip Code', 'ogr')
 target_field = 'PatCNT'
 
@@ -76,32 +77,32 @@ def apply_graduated_symbology():
 
     symbol = QgsSymbol.defaultSymbol(join_layer.geometryType())     #symbol stores a symbol for the geometry type of this layer, which is a polygon
     symbol.setColor(QColor("#f5c9c9"))                              #sets Color for this symbol
-    myRange = QgsRendererRange(0, 1, symbol, '1')                   #QgsRendererRange is used to define values for a range of values. Arguments are (min value, max value, color, label)
+    myRange = QgsRendererRange(0, 2, symbol, '2 or fewer')                   #QgsRendererRange is used to define values for a range of values. Arguments are (min value, max value, color, label)
     myRangeList.append(myRange)                                     #appends this range of values to myRangeList
 
     symbol = QgsSymbol.defaultSymbol(join_layer.geometryType())
     symbol.setColor(QColor("#f97a7a"))
-    myRange = QgsRendererRange(1.1, 2, symbol, '2')
+    myRange = QgsRendererRange(2.1, 4, symbol, '3-4')
     myRangeList.append(myRange)
 
     symbol = QgsSymbol.defaultSymbol(join_layer.geometryType())
     symbol.setColor(QColor("#ff0000"))
-    myRange = QgsRendererRange(2.1, 3, symbol, '3')
+    myRange = QgsRendererRange(4.1, 6, symbol, '5-6')
     myRangeList.append(myRange)
 
     symbol = QgsSymbol.defaultSymbol(join_layer.geometryType())
     symbol.setColor(QColor("#8a0000"))
-    myRange = QgsRendererRange(3.1, 4, symbol, '4')
+    myRange = QgsRendererRange(5.1, 7, symbol, '6-7')
     myRangeList.append(myRange)
 
     symbol = QgsSymbol.defaultSymbol(join_layer.geometryType())
     symbol.setColor(QColor("#4a0000"))
-    myRange = QgsRendererRange(4.1, 5, symbol, '5')
+    myRange = QgsRendererRange(7.1, 9, symbol, '8-9')
     myRangeList.append(myRange)
 
     symbol = QgsSymbol.defaultSymbol(join_layer.geometryType())
     symbol.setColor(QColor("#000000"))
-    myRange = QgsRendererRange(5.1, 6, symbol, '6 or more patients')
+    myRange = QgsRendererRange(9.1, 100, symbol, '10 or more')
     myRangeList.append(myRange)
 
     myRenderer = QgsGraduatedSymbolRenderer(target_field, myRangeList)  #reads target_field and uses values from myRangeList to populate those values in myRenderer
