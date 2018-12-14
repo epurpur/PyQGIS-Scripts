@@ -9,7 +9,7 @@ import json
 import csv
 from pprint import pprint
 import requests
-import logging_functions
+
 
 def get_city_id():
     """parses json file (filename - city.list.json) of all places and returns city_id for place entered by user.
@@ -59,7 +59,7 @@ def single_dynamic_api_request(city_id_list):
 #    pprint(json_data) #including this in case you want to see pprint json data for each city in list
     return json_data    
 
-@logging_functions.my_logger
+
 def display_conditions_today(json_data, climbing_area_alias, zip_codes):
     """gets json data from create_dynamic_api_request (after API request is made)
     and climbing_area_alias is list of climbing areas near towns (not necessarily town names themselves).
@@ -106,6 +106,42 @@ def display_conditions_today(json_data, climbing_area_alias, zip_codes):
         
         print(f"Currently, the best conditions are in {min(conditions_dict, key=conditions_dict.get)}.")  
     
+        return conditions_dict
+    
     except KeyError:
         print("**Key Error** Either the state you entered is not in the database...")
         print("Or there is a problem in the with/open block in the state_choice() function")
+
+
+def output_for_QGIS(conditions, zip_codes):
+    """takes conditions_dict from display_conditions_today() and zip_codes for chosen state from ClimbingAreasInfo.csv.
+    Starts by making list items out of all 3, then feeding them into temp.csv which will be processed by QGIS.
+    4th column is either 'best' for the minimum conditions score, or 'other' for all other values """
+    
+    cities = list(conditions.keys())
+    conditions_scores = list(conditions.values())
+    rank = []
+    
+    for i in conditions_scores:     #this populates the rank list with 'best' for lowest score or 'other'
+        if i == min(conditions_scores):
+            rank.append('best')
+        else:
+            rank.append('other')
+
+    together = zip(cities, conditions_scores, zip_codes, rank)  #zips the 4 lists together
+
+
+    with open('temp.csv', mode='w') as write_file:
+        employee_writer = csv.writer(write_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    
+        employee_writer.writerow(['Climbing_Areas', 'Conditions_Score', 'Zip_codes', 'Rank'])
+    
+        for i in together:
+            employee_writer.writerow([i[0], i[1], i[2], i[3]])
+            
+
+        
+    
+    
+
+

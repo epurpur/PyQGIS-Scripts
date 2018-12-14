@@ -28,9 +28,11 @@ def main():
         climbing_area_alias = user_state_choice[1]  #list of climbing area aliases returned from state_choice
         zip_codes = user_state_choice[2]        #list of zip codes for each location returned from state_choice
     
-        json_data = dff.single_dynamic_api_request(city_id_list)
+        json_data = dff.single_dynamic_api_request(city_id_list)    #returns JSON data for each API request (city) in chosen state
 
-        dff.display_conditions_today(json_data, climbing_area_alias, zip_codes)
+        conditions = dff.display_conditions_today(json_data, climbing_area_alias, zip_codes)    #returns dictionary of cities with conditions score as a dictionary
+        
+        dff.output_for_QGIS(conditions, zip_codes)          #processes final output for QGIS in temp.csv file
 
     elif forecast_time == '5':
 
@@ -40,7 +42,8 @@ def main():
         
         json_data_list = eff.multiple_dynamic_api_requests(city_id_list)    #returns json_data for each time in 5 day forecast (at 3hr intervals) for each location
         eff.calc_best_daily_conditions(json_data_list)
-         
+
+        
     else:
         print("choose either 1 day or 5 day forecast")
 
