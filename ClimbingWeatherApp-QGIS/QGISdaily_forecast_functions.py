@@ -11,20 +11,6 @@ from pprint import pprint
 import requests
 
 
-def get_city_id():
-    """parses json file (filename - city.list.json) of all places and returns city_id for place entered by user.
-    Not really for use in program, I use this on the side to quickly search json file (in folder with other data)
-    However, it is kind of difficult to use because many cities do not have unique names. Result is usually a long list
-    of city ids which are unintelligible by themselves"""
-    with open('city.list.json') as file:
-        data = json.load(file, encoding='utf-8')
-    
-        city = input("Enter a city: ")
-        for place in data:
-            if place['name'] == city:
-                print(place['id'])
-         
-
 def state_choice(state):
     """Asks for user_state_choice and imports csv('ClimbingAreasCityID.csv') of climbing areas by state. Looks for state in list, then returns list 
     of city_ids and their climbing_area_alias for each location"""
@@ -43,10 +29,9 @@ def state_choice(state):
             city_id_list.append(i[3])
             zip_codes.append(i[4])
             
-    return city_id_list, climbing_area_alias, zip_codes       
+    return city_id_list, climbing_area_alias, zip_codes            
     
 
-#@logging_functions.my_logger
 def single_dynamic_api_request(city_id_list):
     """city_id_list is returned from state_choice and uses them to create api request to return weather for city."""
     
@@ -139,9 +124,3 @@ def output_for_QGIS(conditions, zip_codes):
         for i in together:
             employee_writer.writerow([i[0], i[1], i[2], i[3]])
             
-
-        
-    
-    
-
-
