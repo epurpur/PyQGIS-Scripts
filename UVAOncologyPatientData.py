@@ -8,6 +8,7 @@ uri = '/Users/ep9k/Desktop/SandraMonson/cb_2017_us_zcta510_500k/cb_2017_us_zcta5
 join_layer = iface.addVectorLayer(uri, 'Patients by Zip Code', 'ogr')
 target_field = 'PatCNT'
 
+
 def add_csv():
     """Adds csv file of patient data to map. Pop-up dialog box prompts user to input file path
     QInputDialog prompts user for file name. User must input path to a CSV file"""
