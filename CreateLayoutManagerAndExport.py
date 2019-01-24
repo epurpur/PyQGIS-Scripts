@@ -1,3 +1,5 @@
+#Brian Libgober's stack overflow thread
+#https://gis.stackexchange.com/questions/277223/qgsprintlayout-setup-from-pyqgis-3
 
 """This creates a new print layout"""
 project = QgsProject.instance()             #gets a reference to the project instance
@@ -5,13 +7,25 @@ project = QgsProject.instance()             #gets a reference to the project ins
 manager = project.layoutManager()           #gets a reference to the layout manager
 layout = QgsPrintLayout(project)            #makes a new print layout object, takes a QgsProject as argument
 layout.initializeDefaults()                         #needs to call this according to documentation
-layout.setName('Console2')                           #lets you choose a name for the layout
+layout.setName('Console3')                           #lets you choose a name for the layout
 manager.addLayout(layout)                           #adds layout to manager
 
 
+"""This adds items to the map"""
+map = QgsLayoutItemMap(layout)                              #creates map item
+map.setRect(20, 20, 20, 20)                                 #must setRect() but arguments don't seem to do anything
+rectangle = QgsRectangle(1355502, -46398, 1734534, 137094)  #create rectangle with extent of stuff I want to map (coordinates)
+map.setExtent(rectangle)
+#canvas = iface.mapCanvas()                                 #creates Canvas object using reference to iface
+#map.setExtent(canvas.extent())                             #set extent as the canvas, which is the current extent of the map canvas (zoom in or out)
+layout.addLayoutItem(map)
+map.attemptMove(QgsLayoutPoint(0.25, 0.25, QgsUnitTypes.LayoutInches))          #moves map object box
+map.attemptResize(QgsLayoutSize(250, 200, QgsUnitTypes.LayoutMillimeters))      #resizes map object box
 
 
-#"""This exports a Print Layout as an image"""
+
+
+"""This exports a Print Layout as an image"""
 #manager = QgsProject.instance().layoutManager()     #this is a reference to the layout Manager, which contains a list of print layouts
 #for layout in manager.printLayouts():               #this prints all existing print layouts in a list
 #    print(layout.name())
