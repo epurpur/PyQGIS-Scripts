@@ -7,7 +7,8 @@ project = QgsProject.instance()             #gets a reference to the project ins
 manager = project.layoutManager()           #gets a reference to the layout manager
 layout = QgsPrintLayout(project)            #makes a new print layout object, takes a QgsProject as argument
 layout.initializeDefaults()                         #needs to call this according to documentation
-layout.setName('Console4')                           #lets you choose a name for the layout
+layoutName = "Console5"
+layout.setName(layoutName)                           #lets you choose a name for the layout
 manager.addLayout(layout)                           #adds layout to manager
 
 
@@ -72,7 +73,7 @@ manager = QgsProject.instance().layoutManager()     #this is a reference to the 
 for layout in manager.printLayouts():               #this prints all existing print layouts in a list
     print(layout.name())
 
-layout = manager.layoutByName("Console4")         #this accesses a specific layout, by name (which is a string)
+layout = manager.layoutByName(layoutName)         #this accesses a specific layout, by name (which is a string)
 
 exporter = QgsLayoutExporter(layout)                #this creates a QgsLayoutExporter object
 exporter.exportToPdf('/Users/ep9k/Desktop/TestLayout.pdf', QgsLayoutExporter.PdfExportSettings())      #this exports a pdf of the layout object
