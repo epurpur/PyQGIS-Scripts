@@ -12,20 +12,59 @@ manager.addLayout(layout)                           #adds layout to manager
 
 
 """This adds a map item to the Print Layout"""
-map = QgsLayoutItemMap(layout)                              #creates map item
-map.setRect(20, 20, 20, 20)                                 #must setRect() but arguments don't seem to do anything
-rectangle = QgsRectangle(1355502, -46398, 1734534, 137094)  #create rectangle with extent of stuff I want to map (coordinates)
+map = QgsLayoutItemMap(layout)
+map.setRect(20, 20, 20, 20)  
+#Set Extent
+rectangle = QgsRectangle(1355502, -46398, 1734534, 137094)
 map.setExtent(rectangle)
-#canvas = iface.mapCanvas()                                 #creates Canvas object using reference to iface
-#map.setExtent(canvas.extent())                             #set extent as the canvas, which is the current extent of the map canvas (zoom in or out)
+#canvas = iface.mapCanvas()
+#map.setExtent(canvas.extent())
 layout.addLayoutItem(map)
-map.attemptMove(QgsLayoutPoint(0.25, 0.25, QgsUnitTypes.LayoutInches))          #moves map object box
-map.attemptResize(QgsLayoutSize(250, 200, QgsUnitTypes.LayoutMillimeters))      #resizes map object box
+#Move & Resize
+map.attemptMove(QgsLayoutPoint(5, 27, QgsUnitTypes.LayoutMillimeters))
+map.attemptResize(QgsLayoutSize(239, 178, QgsUnitTypes.LayoutMillimeters))
+
+
+"""Checks layer tree objects and stores them in a list. This includes csv tables"""
+checked_layers = [layer.name() for layer in QgsProject().instance().layerTreeRoot().children() if layer.isVisible()]
+print(f"Adding {checked_layers}" )
+#get map layer objects of checked layers by matching their names and store those in a list
+layersToAdd = [layer for layer in QgsProject().instance().mapLayers().values() if layer.name() in checked_layers]
 
 """This adds a legend item to the Print Layout"""
 legend = QgsLayoutItemLegend(layout)
+legend.setTitle("Legend")
+root = QgsLayerTree()
+for layer in layersToAdd:
+    #add layer objects to the layer tree
+    root.addLayer(layer)
+legend.model().setRootGroup(root)
 layout.addLayoutItem(legend)
-legend.attemptMove(QgsLayoutPoint(250, 0, QgsUnitTypes.LayoutMillimeters))
+legend.attemptMove(QgsLayoutPoint(246, 5, QgsUnitTypes.LayoutMillimeters))
+
+
+"""This adds labels to the map"""
+title = QgsLayoutItemLabel(layout)
+title.setText("Title Here")
+title.setFont(QFont("Arial", 28))
+title.adjustSizeToText()
+layout.addLayoutItem(title)
+title.attemptMove(QgsLayoutPoint(10, 4, QgsUnitTypes.LayoutMillimeters))
+
+subtitle = QgsLayoutItemLabel(layout)
+subtitle.setText("Subtitle Here")
+subtitle.setFont(QFont("Arial", 17))
+subtitle.adjustSizeToText()
+layout.addLayoutItem(subtitle)
+subtitle.attemptMove(QgsLayoutPoint(11, 20, QgsUnitTypes.LayoutMillimeters))   #allows moving text box
+
+credit_text = QgsLayoutItemLabel(layout)
+credit_text.setText("Credit Text Here")
+credit_text.setFont(QFont("Arial", 10))
+credit_text.adjustSizeToText()
+layout.addLayoutItem(credit_text)
+credit_text.attemptMove(QgsLayoutPoint(246, 190, QgsUnitTypes.LayoutMillimeters))
+
 
 
 """This exports a Print Layout as an image"""
