@@ -3,35 +3,39 @@ import numpy            #using percentile function when calculating raster pixel
 
 """This creates a new print layout"""
 project = QgsProject.instance()             #gets a reference to the project instance
-#projectInstance = QgsProject()                     #reference to project, but not the instance. Doesn't add new layout to Layout Manager. Do I need a reference to the instance?
 manager = project.layoutManager()           #gets a reference to the layout manager
 layout = QgsPrintLayout(project)            #makes a new print layout object, takes a QgsProject as argument
-layout.initializeDefaults()                         #needs to call this according to documentation
-layoutName = "PrintLayout2"
-layout.setName(layoutName)                           #lets you choose a name for the layout
-manager.addLayout(layout)                           #adds layout to manager
+layoutName = "PrintLayout"
 
+layouts_list = manager.printLayouts()
+for layout in layouts_list:
+    if layout.name() == layoutName:
+        manager.removeLayout(layout)
+        
+layout = QgsPrintLayout(project)
+layout.initializeDefaults()                 #create default map canvas
+layout.setName(layoutName)
+manager.addLayout(layout)
 
 
 """This adds a map item to the Print Layout"""
 map = QgsLayoutItemMap(layout)
 map.setRect(20, 20, 20, 20)  
 #Set Extent
-rectangle = QgsRectangle(1355502, -46398, 1734534, 137094)
-map.setExtent(rectangle)
-#canvas = iface.mapCanvas()
-#map.setExtent(canvas.extent())
+#rectangle = QgsRectangle(1355502, -46398, 1734534, 137094)         #an example of how to set map extent with coordinates
+#map.setExtent(rectangle)
+canvas = iface.mapCanvas()
+map.setExtent(canvas.extent())                  #sets map extent to current map canvas
 layout.addLayoutItem(map)
 #Move & Resize
 map.attemptMove(QgsLayoutPoint(5, 27, QgsUnitTypes.LayoutMillimeters))
 map.attemptResize(QgsLayoutSize(239, 178, QgsUnitTypes.LayoutMillimeters))
 
 
-
 """Gathers active layers to add to legend"""
 #Checks layer tree objects and stores them in a list. This includes csv tables
 checked_layers = [layer.name() for layer in QgsProject().instance().layerTreeRoot().children() if layer.isVisible()]
-print(f"Adding {checked_layers}" )
+print(f"Adding {checked_layers} to legend." )
 #get map layer objects of checked layers by matching their names and store those in a list
 layersToAdd = [layer for layer in QgsProject().instance().mapLayers().values() if layer.name() in checked_layers]
 
@@ -67,26 +71,27 @@ value_range = range(int(min_val), int(max_val+1))           #Range of values in 
 
 #we will categorize pixel values into 5 quintiles, based on value_range of raster layer
 #defining min and max values for each quintile. 
-first_quintile_max = numpy.percentile(value_range, 20)
-first_quintile_min = min_val
-second_quintile_max = numpy.percentile(value_range, 40)
-second_quintile_min = first_quintile_max + .01
-third_quintile_max = numpy.percentile(value_range, 60)
-third_quintile_min = second_quintile_max + .01
-fourth_quintile_max = numpy.percentile(value_range, 80)
-fourth_quintile_min = third_quintile_max + .01
-fifth_quintile_max = numpy.percentile(value_range, 100)
-fifth_quintile_min = fourth_quintile_max + .01
+#Also, values are rounded to 2 decimal places
+first_quintile_max = round(numpy.percentile(value_range, 20), 2)
+first_quintile_min = round(min_val, 2)
+second_quintile_max = round(numpy.percentile(value_range, 40), 2)
+second_quintile_min = round((first_quintile_max + .01), 2)
+third_quintile_max = round(numpy.percentile(value_range, 60), 2)
+third_quintile_min = round((second_quintile_max + .01), 2)
+fourth_quintile_max = round(numpy.percentile(value_range, 80), 2)
+fourth_quintile_min = round((third_quintile_max + .01), 2)
+fifth_quintile_max = round(numpy.percentile(value_range, 100), 2)
+fifth_quintile_min = round((fourth_quintile_max + .01), 2)
 
 
 #builds raster shader with colors_list. 
 raster_shader = QgsColorRampShader()
 raster_shader.setColorRampType(QgsColorRampShader.Discrete)           #Shading raster layer with QgsColorRampShader.Discrete
-colors_list = [ QgsColorRampShader.ColorRampItem(first_quintile_max, QColor(219, 230, 255), f"{first_quintile_min} - {first_quintile_max}"), \
-    QgsColorRampShader.ColorRampItem(second_quintile_max, QColor(183, 204, 255), f"{second_quintile_min} - {second_quintile_max}"), \
-    QgsColorRampShader.ColorRampItem(third_quintile_max, QColor(147, 180, 255), f"{third_quintile_min} - {third_quintile_max}"), \
-    QgsColorRampShader.ColorRampItem(fourth_quintile_max, QColor(111, 154, 255), f"{fourth_quintile_min} - {fourth_quintile_max}"), \
-    QgsColorRampShader.ColorRampItem(fifth_quintile_max, QColor(75, 130, 255), f"{fifth_quintile_min} - {fifth_quintile_max}"), \
+colors_list = [ QgsColorRampShader.ColorRampItem(first_quintile_max, QColor(204, 219, 255), f"{first_quintile_min} - {first_quintile_max}"), \
+    QgsColorRampShader.ColorRampItem(second_quintile_max, QColor(153, 184, 255), f"{second_quintile_min} - {second_quintile_max}"), \
+    QgsColorRampShader.ColorRampItem(third_quintile_max, QColor(102, 148, 255), f"{third_quintile_min} - {third_quintile_max}"), \
+    QgsColorRampShader.ColorRampItem(fourth_quintile_max, QColor(51, 113, 255), f"{fourth_quintile_min} - {fourth_quintile_max}"), \
+    QgsColorRampShader.ColorRampItem(fifth_quintile_max, QColor(0, 77, 255), f"{fifth_quintile_min} - {fifth_quintile_max}"), \
     QgsColorRampShader.ColorRampItem(255, QColor(0, 0, 0), 'Missing Value') ]
 
 raster_shader.setColorRampItemList(colors_list)         #applies colors_list to raster_shader
@@ -125,8 +130,8 @@ credit_text.attemptMove(QgsLayoutPoint(246, 190, QgsUnitTypes.LayoutMillimeters)
 
 """This exports a Print Layout as an image"""
 manager = QgsProject.instance().layoutManager()     #this is a reference to the layout Manager, which contains a list of print layouts
-for layout in manager.printLayouts():               #this prints all existing print layouts in a list
-    print(layout.name())
+#for layout in manager.printLayouts():               #this prints all existing print layouts in a list
+#    print(layout.name())
 
 layout = manager.layoutByName(layoutName)         #this accesses a specific layout, by name (which is a string)
 
