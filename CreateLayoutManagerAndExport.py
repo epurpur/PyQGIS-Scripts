@@ -1,5 +1,12 @@
 import numpy            #using percentile function when calculating raster pixel value range
+#add import statements for qgis.core class functions, etc###
 
+
+#add function to clip output raster from step 2 to vector input used in step 1 (vector of the study area)
+"""This clips output raster from step 2 to extent of vector input of study area"""
+###Uses Clip Raster by mask layer tool from Raster>Extraction>...
+
+###add function here to create print layout###
 
 """This creates a new print layout"""
 project = QgsProject.instance()             #gets a reference to the project instance
@@ -17,6 +24,8 @@ layout.initializeDefaults()                 #create default map canvas
 layout.setName(layoutName)
 manager.addLayout(layout)
 
+
+###add function here to incorporate adding all map objects###
 
 """This adds a map item to the Print Layout"""
 map = QgsLayoutItemMap(layout)
@@ -84,6 +93,8 @@ fifth_quintile_max = round(numpy.percentile(value_range, 100), 2)
 fifth_quintile_min = round((fourth_quintile_max + .01), 2)
 
 
+###maybe add function here to create index of color values based on ESV service###
+
 #builds raster shader with colors_list. 
 raster_shader = QgsColorRampShader()
 raster_shader.setColorRampType(QgsColorRampShader.Discrete)           #Shading raster layer with QgsColorRampShader.Discrete
@@ -91,8 +102,13 @@ colors_list = [ QgsColorRampShader.ColorRampItem(first_quintile_max, QColor(204,
     QgsColorRampShader.ColorRampItem(second_quintile_max, QColor(153, 184, 255), f"{second_quintile_min} - {second_quintile_max}"), \
     QgsColorRampShader.ColorRampItem(third_quintile_max, QColor(102, 148, 255), f"{third_quintile_min} - {third_quintile_max}"), \
     QgsColorRampShader.ColorRampItem(fourth_quintile_max, QColor(51, 113, 255), f"{fourth_quintile_min} - {fourth_quintile_max}"), \
-    QgsColorRampShader.ColorRampItem(fifth_quintile_max, QColor(0, 77, 255), f"{fifth_quintile_min} - {fifth_quintile_max}"), \
-    QgsColorRampShader.ColorRampItem(255, QColor(0, 0, 0), 'Missing Value') ]
+    QgsColorRampShader.ColorRampItem(fifth_quintile_max, QColor(0, 77, 255), f"{fifth_quintile_min} - {fifth_quintile_max}")]
+
+#colors_list = [ 
+#QgsColorRampShader.ColorRampItem(first_quintile_max, QColor(255, 255, 255), f"{first_quintile_min} - {first_quintile_max}"), \
+#QgsColorRampShader.ColorRampItem(second_quintile_max, QColor(153, 184, 255), f"{second_quintile_min} - {second_quintile_max}"), \
+#QgsColorRampShader.ColorRampItem(255, QColor(0, 0, 0), 'No Value') ]
+
 
 raster_shader.setColorRampItemList(colors_list)         #applies colors_list to raster_shader
 shader = QgsRasterShader()
@@ -126,7 +142,7 @@ credit_text.adjustSizeToText()
 layout.addLayoutItem(credit_text)
 credit_text.attemptMove(QgsLayoutPoint(246, 190, QgsUnitTypes.LayoutMillimeters))
 
-
+####Add function here for creating final export###
 
 """This exports a Print Layout as an image"""
 manager = QgsProject.instance().layoutManager()     #this is a reference to the layout Manager, which contains a list of print layouts
