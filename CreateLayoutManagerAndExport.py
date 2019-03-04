@@ -6,7 +6,6 @@ import numpy            #using percentile function when calculating raster pixel
 """This clips output raster from step 2 to extent of vector input of study area"""
 ###Uses Clip Raster by mask layer tool from Raster>Extraction>...
 
-###add function here to create print layout###
 
 """This creates a new print layout"""
 project = QgsProject.instance()             #gets a reference to the project instance
@@ -25,7 +24,6 @@ layout.setName(layoutName)
 manager.addLayout(layout)
 
 
-###add function here to incorporate adding all map objects###
 
 """This adds a map item to the Print Layout"""
 map = QgsLayoutItemMap(layout)
@@ -47,16 +45,14 @@ checked_layers = [layer.name() for layer in QgsProject().instance().layerTreeRoo
 print(f"Adding {checked_layers} to legend." )
 #get map layer objects of checked layers by matching their names and store those in a list
 layersToAdd = [layer for layer in QgsProject().instance().mapLayers().values() if layer.name() in checked_layers]
-
-
-
-"""This adds a legend item to the Print Layout"""
-legend = QgsLayoutItemLegend(layout)
-#legend.setTitle("Legend")
 root = QgsLayerTree()
 for layer in layersToAdd:
     #add layer objects to the layer tree
     root.addLayer(layer)
+
+
+"""This adds a legend item to the Print Layout"""
+legend = QgsLayoutItemLegend(layout)
 legend.model().setRootGroup(root)
 layout.addLayoutItem(legend)
 legend.attemptMove(QgsLayoutPoint(246, 5, QgsUnitTypes.LayoutMillimeters))
@@ -76,7 +72,12 @@ max_val = stats.maximumValue            #maximum pixel value in layer
 print("min value =", min_val)
 print("max value =", max_val)
 
-value_range = range(int(min_val), int(max_val+1))           #Range of values in raster layer. Without +1 doesn't capture highest value
+value_range = list(range(int(min_val), int(max_val+1)))           #Range of values in raster layer. Without +1 doesn't capture highest value
+value_range.sort()
+for value in value_range:                   #deletes 0 value from value range so as not to skew shading in results
+    if value < stats.minimumValue:
+        del value
+
 
 #we will categorize pixel values into 5 quintiles, based on value_range of raster layer
 #defining min and max values for each quintile. 
@@ -98,18 +99,12 @@ fifth_quintile_min = round((fourth_quintile_max + .01), 2)
 #builds raster shader with colors_list. 
 raster_shader = QgsColorRampShader()
 raster_shader.setColorRampType(QgsColorRampShader.Discrete)           #Shading raster layer with QgsColorRampShader.Discrete
-colors_list = [ QgsColorRampShader.ColorRampItem(first_quintile_max, QColor(204, 219, 255), f"{first_quintile_min} - {first_quintile_max}"), \
+colors_list = [ QgsColorRampShader.ColorRampItem(0, QColor(255, 255, 255), 'No Data'), \
+    QgsColorRampShader.ColorRampItem(first_quintile_max, QColor(204, 219, 255), f"{first_quintile_min} - {first_quintile_max}"), \
     QgsColorRampShader.ColorRampItem(second_quintile_max, QColor(153, 184, 255), f"{second_quintile_min} - {second_quintile_max}"), \
     QgsColorRampShader.ColorRampItem(third_quintile_max, QColor(102, 148, 255), f"{third_quintile_min} - {third_quintile_max}"), \
     QgsColorRampShader.ColorRampItem(fourth_quintile_max, QColor(51, 113, 255), f"{fourth_quintile_min} - {fourth_quintile_max}"), \
     QgsColorRampShader.ColorRampItem(fifth_quintile_max, QColor(0, 77, 255), f"{fifth_quintile_min} - {fifth_quintile_max}")]
-
-#colors_list = [ 
-#QgsColorRampShader.ColorRampItem(first_quintile_max, QColor(255, 255, 255), f"{first_quintile_min} - {first_quintile_max}"), \
-#QgsColorRampShader.ColorRampItem(second_quintile_max, QColor(153, 184, 255), f"{second_quintile_min} - {second_quintile_max}"), \
-#QgsColorRampShader.ColorRampItem(255, QColor(0, 0, 0), 'No Value') ]
-
-
 raster_shader.setColorRampItemList(colors_list)         #applies colors_list to raster_shader
 shader = QgsRasterShader()
 shader.setRasterShaderFunction(raster_shader)       
@@ -142,7 +137,6 @@ credit_text.adjustSizeToText()
 layout.addLayoutItem(credit_text)
 credit_text.attemptMove(QgsLayoutPoint(246, 190, QgsUnitTypes.LayoutMillimeters))
 
-####Add function here for creating final export###
 
 """This exports a Print Layout as an image"""
 manager = QgsProject.instance().layoutManager()     #this is a reference to the layout Manager, which contains a list of print layouts
