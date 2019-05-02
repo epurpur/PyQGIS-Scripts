@@ -1,8 +1,6 @@
 
 import processing
 
-#gets layer ids for all the map layers
-layersToAdd = [layer for layer in QgsProject().instance().mapLayers().values()]
 
 layer_paths = ['/Users/ep9k/Desktop/BRE/Zone1aKeepers.shp',
                 '/Users/ep9k/Desktop/BRE/Zone1bKeepers.shp',
